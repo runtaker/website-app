@@ -21,7 +21,9 @@ import { GsheetDownloaderComponent } from './gsheet-downloader/gsheet-downloader
     AppRoutingModule,
     NoopAnimationsModule
   ],
-  providers: [],
+  providers: [
+    GsheetDownloaderComponent
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

@@ -8,4 +8,12 @@ import { GsheetDownloaderComponent } from './gsheet-downloader/gsheet-downloader
 })
 export class AppComponent {
   title = 'website-app';
+  formRowsArray = [];
+
+  constructor(
+    private gSheetComponent: GsheetDownloaderComponent) {
+      this.formRowsArray = gSheetComponent.formRowsArray;
+    }
+
+  
 }
