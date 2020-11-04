@@ -11,11 +11,12 @@ import { HttpClient } from '@angular/common/http';
 export class GsheetDownloaderComponent implements OnInit {
   
   NO_OF_COLS = 7;
+  FIRST_ROW_TO_READ_FROM = 3;
   
   contents: string;
   formRowsArray = [];
   
-  gSheetEndpoint = 'https://spreadsheets.google.com/feeds/cells/1pD1or3qyg-PgT0Q_os-bTKwMr5WfoCY6CZ9AjAcpGqk/2/public/full?alt=json';
+  gSheetEndpoint = 'https://spreadsheets.google.com/feeds/cells/1pD1or3qyg-PgT0Q_os-bTKwMr5WfoCY6CZ9AjAcpGqk/3/public/full?alt=json';
   
   constructor(
     private http: HttpClient) { 
@@ -45,20 +46,20 @@ export class GsheetDownloaderComponent implements OnInit {
   }
 
   getFormEntryArray(dataValueArr: DataValue[]) {
-    let currRow = 2;
+    let currRow = this.FIRST_ROW_TO_READ_FROM;
     var formEntry = new FormEntry();
     var formEntries = [];
 
     dataValueArr.forEach(dataValue => {
       
       //Ignore header row
-      if(dataValue.gs$cell.row == 1) {
+      if(dataValue.gs$cell.row < this.FIRST_ROW_TO_READ_FROM) {
         return;
       }
 
       //If new row, save previous FormEntry object, reinitialize formEntry object, update current row value
       if(dataValue.gs$cell.row > currRow) {
-        formEntries[currRow-2] = formEntry;
+        formEntries[currRow-this.FIRST_ROW_TO_READ_FROM] = formEntry;
         formEntry = new FormEntry();
         currRow = dataValue.gs$cell.row;
       }
@@ -68,27 +69,27 @@ export class GsheetDownloaderComponent implements OnInit {
           break;
         }
         case 2: {
-          formEntry.submitter = dataValue.content.$t;
-          break;
-        }
-        case 3: {
           formEntry.countryCode = dataValue.content.$t;
           break;
         }
-        case 4: {
+        case 3: {
           formEntry.phrase = dataValue.content.$t;
           break;
         }
-        case 5: {
+        case 4: {
           formEntry.imageUrl = dataValue.content.$t;
           break;
         }
+        case 5: {
+          formEntry.occurrences = dataValue.content.$t;
+          break;
+        }
         case 6: {
-          formEntry.comments = dataValue.content.$t;
+          formEntry.percent = dataValue.content.$t;
           break;
         }
         case 0: {
-          formEntry.jsonResponse = dataValue.content.$t;
+          formEntry.notes = dataValue.content.$t;
           break;
         }
         default: {
@@ -96,11 +97,21 @@ export class GsheetDownloaderComponent implements OnInit {
         }
       }
     });
-    formEntries[currRow-2] = formEntry;
+    formEntries[currRow-this.FIRST_ROW_TO_READ_FROM] = formEntry;
+    console.log(formEntries);
     return formEntries;
   }
 }
 
+export class FormEntry {
+  timeStamp: string
+  countryCode: string
+  phrase: string
+  imageUrl: string
+  occurrences: string
+  percent: string
+  notes: string
+}
 
 export interface JSONResponse {
   feed: Feed
@@ -119,13 +130,4 @@ export interface Content {
 export interface CellData {
   row: number,
   col: number
-}
-export class FormEntry {
-  timeStamp: string
-  submitter: string
-  countryCode: string
-  phrase: string
-  imageUrl: string
-  comments: string
-  jsonResponse: string
 }
