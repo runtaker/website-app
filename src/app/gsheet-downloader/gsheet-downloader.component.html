@@ -1,8 +1,29 @@
 <div class="example-boundary">
-      <div *ngFor="let formRow of formRowsArray">
-        <div class="example-box" cdkDragBoundary=".example-boundary" cdkDrag>
+    <div *ngFor="let formRow of formRowsArray; let i = index">
+      <div *ngIf="i % 5 == 0" class="row">
+        <div class="example-box" cdkDragBoundary=".example-boundary" cdkDrag style="display: inline-block; position: relative;">
           <img src="{{formRow.imageUrl}}">
         </div>
+        <div *ngIf="i + 1 < formRowsArray.length">
+          <div class="example-box" cdkDragBoundary=".example-boundary" cdkDrag style="display: inline-block">
+            <img src="{{formRowsArray[i+1].imageUrl}}">
+          </div>
+        </div>
+        <div *ngIf="i + 2 < formRowsArray.length">
+          <div class="example-box" cdkDragBoundary=".example-boundary" cdkDrag style="display: inline-block">
+            <img src="{{formRowsArray[i+2].imageUrl}}">
+          </div>
+        </div>
+        <div *ngIf="i + 3 < formRowsArray.length">
+          <div class="example-box" cdkDragBoundary=".example-boundary" cdkDrag style="display: inline-block">
+            <img src="{{formRowsArray[i+3].imageUrl}}">
+          </div>
+        </div>
+        <div *ngIf="i + 4 < formRowsArray.length">
+          <div class="example-box" cdkDragBoundary=".example-boundary" cdkDrag style="display: inline-block">
+            <img src="{{formRowsArray[i+4].imageUrl}}">
+          </div>
+        </div>
       </div>
-      
+    </div>
   </div>

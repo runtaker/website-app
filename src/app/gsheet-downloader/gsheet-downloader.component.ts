@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
@@ -8,7 +8,7 @@ import { HttpClient } from '@angular/common/http';
   styleUrls: ['./gsheet-downloader.component.css']
 })
 @Injectable()
-export class GsheetDownloaderComponent implements OnInit {
+export class GsheetDownloaderComponent {
   
   NO_OF_COLS = 7;
   FIRST_ROW_TO_READ_FROM = 3;
@@ -21,28 +21,19 @@ export class GsheetDownloaderComponent implements OnInit {
   constructor(
     private http: HttpClient) { 
       this.buildFormRowsArray();
-      this.ngOnInit();
     }
-
-  ngOnInit() {
-    
-  }
 
   buildFormRowsArray() {
     return this.http.get(this.gSheetEndpoint)
       .subscribe(
-          data => {
-            this.formRowsArray = this.getFormEntryArray(this.getJsonResponse(data).feed.entry);
+          (data: JSONResponse) => {
+            let rawData: JSONResponse = {... data};
+            this.formRowsArray = this.getFormEntryArray(rawData.feed.entry);
           },
           error => {
             this.contents = error.toString();
           }
         )
-  }
-
-  getJsonResponse(rawData: Object) {
-    let JsonString = JSON.stringify(rawData);
-    return <JSONResponse>JSON.parse(JsonString);
   }
 
   getFormEntryArray(dataValueArr: DataValue[]) {
@@ -51,9 +42,10 @@ export class GsheetDownloaderComponent implements OnInit {
     var formEntries = [];
 
     dataValueArr.forEach(dataValue => {
-      
+      let dataValueRow: number = +dataValue.gs$cell.row;
+
       //Ignore header row
-      if(dataValue.gs$cell.row < this.FIRST_ROW_TO_READ_FROM) {
+      if(dataValueRow < this.FIRST_ROW_TO_READ_FROM) {
         return;
       }
 
@@ -61,7 +53,7 @@ export class GsheetDownloaderComponent implements OnInit {
       if(dataValue.gs$cell.row > currRow) {
         formEntries[currRow-this.FIRST_ROW_TO_READ_FROM] = formEntry;
         formEntry = new FormEntry();
-        currRow = dataValue.gs$cell.row;
+        currRow = dataValueRow;
       }
       switch(dataValue.gs$cell.col % this.NO_OF_COLS) {
         case 1: {
@@ -98,7 +90,6 @@ export class GsheetDownloaderComponent implements OnInit {
       }
     });
     formEntries[currRow-this.FIRST_ROW_TO_READ_FROM] = formEntry;
-    console.log(formEntries);
     return formEntries;
   }
 }
